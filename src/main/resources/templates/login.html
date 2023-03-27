@@ -16,6 +16,7 @@
     <script src="/assets/jquery/easy-number-separator.js"></script>
     <script src="/assets/toastie/dist/js/iziToast.min.js"></script>
     <script src="/assets/js/AppBase.js"></script>
+    <link rel="stylesheet" href="/assets/assetsCP/css/preview-image.css">
     <link href="/assets/toastie/dist/css/iziToast.css" rel="stylesheet" type="text/css">
     <!------ Include the above in your HEAD tag ---------->
 </head>
@@ -51,18 +52,30 @@
         <div class="register-show" id="modalRegister">
             <form id="formRegister">
                 <h2>REGISTER</h2>
-                <input type="text" placeholder="Full Name" id="fullNameReg" name="fullName">
-                    <input type="text" placeholder="Email" id="usernameReg" name="usernameReg">
-                <input type="password" placeholder="Password" id="passwordReg" name="passwordReg">
-                <input type="password" placeholder="Confirm Password" id="rePasswordReg">
                 <div class="row">
-                    <div class="form-group col-md-12">
+                    <div class="form-group col-lg-6 fl-l">
+                        <input type="text" placeholder="Full Name" id="fullNameReg" name="fullName">
+                    </div>
+                    <div class="form-group col-lg-6 fl-l">
+                        <input type="text" placeholder="Email" id="usernameReg" name="usernameReg">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group col-lg-6 fl-l">
+                        <input type="password" placeholder="Password" id="passwordReg" name="passwordReg">
+                    </div>
+                    <div class="form-group col-lg-6 fl-l">
+                        <input type="password" placeholder="Confirm Password" id="rePasswordReg">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group col-lg-6 fl-l">
 
                         <select id="province" name="province"
                                 class="form-control">
                         </select>
                     </div>
-                    <div class="form-group col-md-12">
+                    <div class="form-group col-lg-6 fl-l">
 
                         <select id="district" name="district"
                                 class="form-control">
@@ -71,12 +84,12 @@
 
                 </div>
                 <div class="row">
-                    <div class="form-group col-md-12">
+                    <div class="form-group col-lg-6 fl-l">
                         <select id="ward" name="ward"
                                 class="form-control">
                         </select>
                     </div>
-                    <div class="form-group col-lg-6">
+                    <div class="form-group col-lg-6 fl-l">
 
                         <input id="address" name="address"
                                type="text"
@@ -86,34 +99,37 @@
 
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <section>
-                        <div class="wrapper">
-                            <div class="image-preview">
-                                <canvas id="canvas"></canvas>
-                            </div>
-                            <div class="content" style="opacity: 1;">
-                                <div class="icon">
-                                    <i class="ion ion-md-cloud-upload"></i>
+                <div class="row">
+                    <div class="col-lg-4">
+                        <section>
+                            <div class="wrapper-images">
+                                <div class="image-preview">
+                                    <canvas id="canvas"></canvas>
                                 </div>
-                                <div class="text">
-                                    Chưa có tệp nào được chọn!
+                                <div class="content" style="opacity: 1;">
+                                    <div class="icon">
+                                        <i class="ion ion-md-cloud-upload"></i>
+                                    </div>
+                                    <div class="text">
+                                        Chưa có tệp nào được chọn!
+                                    </div>
+                                    <div class="text">
+                                        Dung lượng tối đa = 2MB
+                                    </div>
                                 </div>
-                                <div class="text">
-                                    Dung lượng tối đa = 2MB
+                                <div class="clear-image-preview">
+                                    <i class="fas fa-times"></i>
+                                </div>
+                                <div class="file-name">
+                                    Sửa ảnh
                                 </div>
                             </div>
-                            <div class="clear-image-preview">
-                                <i class="fas fa-times"></i>
-                            </div>
-                            <div class="file-name">
-                                Sửa ảnh
-                            </div>
-                        </div>
-                        <input type="file" id="imageFile" accept="image/jpeg, image/png" hidden="">
-                    </section>
-                    <input type="button" value="Register" id="btnReg">
+                            <input type="file" id="imageFile" accept="image/jpeg, image/png" hidden="">
+                        </section>
+
+                    </div>
                 </div>
+                <input type="button" value="Register" id="btnReg">
 
 
             </form>

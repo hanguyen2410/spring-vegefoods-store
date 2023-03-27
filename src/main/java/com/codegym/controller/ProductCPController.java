@@ -26,6 +26,7 @@ public class ProductCPController {
     @GetMapping("/create")
     public ModelAndView showCreateForm(){
         ModelAndView modelAndView = new ModelAndView();
+        modelAndView.addObject("customer", appUtils.getCustomer());
         modelAndView.setViewName("cp/product/create");
         return modelAndView;
     }
