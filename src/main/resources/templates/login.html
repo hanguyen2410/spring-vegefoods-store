@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login Page</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/assets/css/login.css">
+    <link rel="stylesheet" href="/assets/sweetalert2/sweetalert2.min.css">
+    <script src="/assets/jquery/jquery-3.6.0.min.js"></script>
+    <link href="maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+    <script src="/assets/js/bootstrap.bundle.min.js"></script>
+    <script src="/assets/jquery/jquery-3.6.0.min.js"></script>
+    <script src="/assets/sweetalert2/sweetalert2@11.js"></script>
+    <script src="/assets/jquery/jquery.validate-1.19.5.min.js"></script>
+    <script src="/assets/jquery/easy-number-separator.js"></script>
+    <script src="/assets/toastie/dist/js/iziToast.min.js"></script>
+    <script src="/assets/js/AppBase.js"></script>
+    <link href="/assets/toastie/dist/css/iziToast.css" rel="stylesheet" type="text/css">
+    <!------ Include the above in your HEAD tag ---------->
+</head>
+
+<body>
+
+
+<div class="login-reg-panel">
+    <div class="login-info-box">
+        <h2>Have an account?</h2>
+        <p>Lorem ipsum dolor sit amet</p>
+        <label id="label-register" for="log-reg-show">Login</label>
+        <input type="radio" name="active-log-panel" id="log-reg-show"  checked="checked">
+    </div>
+
+    <div class="register-info-box">
+        <h2>Don't have an account?</h2>
+        <p>Lorem ipsum dolor sit amet</p>
+        <label id="label-login" for="log-login-show">Register</label>
+        <input type="radio" name="active-log-panel" id="log-login-show">
+    </div>
+
+    <div class="white-panel" id="modalLogin">
+        <div class="login-show">
+            <form id="formLogin">
+                <h2>LOGIN</h2>
+                <input type="text" placeholder="Email" id="usernameLog" name="usernameLog">
+                <input type="password" placeholder="Password" id="passwordLog" name="passwordLog">
+                <input type="button" value="Login" id="btnLogin">
+                <a href="">Forgot password?</a>
+            </form>
+        </div>
+        <div class="register-show" id="modalRegister">
+            <form id="formRegister">
+                <h2>REGISTER</h2>
+                <input type="text" placeholder="Full Name" id="fullNameReg" name="fullName">
+                    <input type="text" placeholder="Email" id="usernameReg" name="usernameReg">
+                <input type="password" placeholder="Password" id="passwordReg" name="passwordReg">
+                <input type="password" placeholder="Confirm Password" id="rePasswordReg">
+                <div class="row">
+                    <div class="form-group col-md-12">
+
+                        <select id="province" name="province"
+                                class="form-control">
+                        </select>
+                    </div>
+                    <div class="form-group col-md-12">
+
+                        <select id="district" name="district"
+                                class="form-control">
+                        </select>
+                    </div>
+
+                </div>
+                <div class="row">
+                    <div class="form-group col-md-12">
+                        <select id="ward" name="ward"
+                                class="form-control">
+                        </select>
+                    </div>
+                    <div class="form-group col-lg-6">
+
+                        <input id="address" name="address"
+                               type="text"
+                               class="form-control"
+                               required=""
+                               placeholder="Address">
+
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <section>
+                        <div class="wrapper">
+                            <div class="image-preview">
+                                <canvas id="canvas"></canvas>
+                            </div>
+                            <div class="content" style="opacity: 1;">
+                                <div class="icon">
+                                    <i class="ion ion-md-cloud-upload"></i>
+                                </div>
+                                <div class="text">
+                                    Chưa có tệp nào được chọn!
+                                </div>
+                                <div class="text">
+                                    Dung lượng tối đa = 2MB
+                                </div>
+                            </div>
+                            <div class="clear-image-preview">
+                                <i class="fas fa-times"></i>
+                            </div>
+                            <div class="file-name">
+                                Sửa ảnh
+                            </div>
+                        </div>
+                        <input type="file" id="imageFile" accept="image/jpeg, image/png" hidden="">
+                    </section>
+                    <input type="button" value="Register" id="btnReg">
+                </div>
+
+
+            </form>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    const page = {
+        urls: {
+            authLogin: AppBase.API_AUTH + '/login',
+            authRegister: AppBase.API_AUTH + '/register',
+            getAllRoles: AppBase.ROLE_API,
+            getAllProvinces: AppBase.PROVINCE_API,
+            getAllDistrictsByProvinceId: AppBase.DISTRICT_API,
+            getAllWardsByDistrictId: AppBase.WARD_API,
+
+        },
+        elements: {},
+        loadData: {},
+        commands: {},
+        dialogs: {
+            elements: {},
+            loadData: {},
+            commands: {},
+            alertDanger: {}
+        },
+        initializeEventControl: {}
+    }
+
+
+
+    $(document).ready(function(){
+        $('.login-info-box').fadeOut();
+        $('.login-show').addClass('show-log-panel');
+    });
+
+
+    $('.login-reg-panel input[type="radio"]').on('change', function() {
+        if($('#log-login-show').is(':checked')) {
+            $('.register-info-box').fadeOut();
+            $('.login-info-box').fadeIn();
+
+            $('.white-panel').addClass('right-log');
+            $('.register-show').addClass('show-log-panel');
+            $('.login-show').removeClass('show-log-panel');
+
+        }
+        else if($('#log-reg-show').is(':checked')) {
+            $('.register-info-box').fadeIn();
+            $('.login-info-box').fadeOut();
+
+            $('.white-panel').removeClass('right-log');
+
+            $('.login-show').addClass('show-log-panel');
+            $('.register-show').removeClass('show-log-panel');
+        }
+    });
+
+
+    page.elements.formLogin = $("#formLogin")
+    page.elements.usernameLog = $('#usernameLog');
+    page.elements.passwordLog = $('#passwordLog');
+    page.elements.btnLogin = $('#btnLogin');
+    // page.alertDanger.formLogin = $("#modalLogin .modal-alert-danger");
+
+
+    page.elements.formRegister = $("#formRegister")
+    page.elements.fullName = $("#fullNameReg");
+    page.elements.usernameReg = $('#usernameReg');
+    page.elements.passwordReg = $('#passwordReg');
+    page.elements.rePasswordReg = $('#rePasswordReg')
+    page.dialogs.elements.province = $("#province");
+    page.dialogs.elements.district = $("#district");
+    page.dialogs.elements.ward = $("#ward");
+    page.dialogs.elements.address = $("#address")
+    page.elements.btnReg = $('#btnReg');
+    // page.alertDanger.formRegister = $("#modalRegister .modal-alert-danger");
+    page.dialogs.elements.divImagePreview = $("#formRegister div.image-preview, #formRegister div.file-name");
+    page.dialogs.elements.imageFile = $("#imageFile");
+    page.dialogs.elements.btnClearImagePreview = $(".clear-image-preview i");
+    page.dialogs.alertDanger.frmRegister = $("#formRegister .frm-alert-danger");
+    page.dialogs.elements.imagePreview = $("#formRegister section .image-preview canvas");
+    page.dialogs.elements.imagePreview.css("display", "none");
+    page.dialogs.elements.wrapper = $("#formRegister section .wrapper");
+    page.dialogs.elements.wrapperContent = $("#formRegister section .wrapper .content");
+    page.dialogs.elements.canvas = $("#canvas");
+    page.dialogs.elements.context = page.dialogs.elements.canvas[0].getContext('2d');
+
+
+
+
+    let customer = new Customer();
+    let customerAvatar = new CustomerAvatar();
+    let user = new User();
+    let locationRegion = new LocationRegion();
+    let role = new Role();
+
+    page.commands.login = () => {
+        let username = page.elements.usernameLog.val();
+        let password = page.elements.passwordLog.val();
+        let obj = {
+            username,
+            password
+        }
+        $.ajax({
+            headers: {
+                'accept': 'application/json',
+                'content-type': 'application/json'
+            },
+            type: 'POST',
+            url: page.urls.authLogin,
+            data: JSON.stringify(obj)
+        })
+            .done((data) => {
+                console.log(data);
+                let role = data.roles[0].authority;
+                Swal.fire({
+                    position: 'top-end',
+                    icon: 'success',
+                    title: 'Đăng nhập thành công!!!',
+                    showConfirmButton: false,
+                    timer: 2000
+                })
+
+                if (role === "ADMIN") {
+                    setTimeout(function () {
+                        window.location.href = "/cp/customers";
+                    }, 1000);
+                }else {
+                    if (role ==="USER"){
+                        setTimeout(function () {
+                            window.location.href = "/products";
+                        }, 1000);
+                    }
+                }
+
+            })
+            .fail((jqXHR) => {
+                Swal.fire({
+                    position: 'top-end',
+                    icon: 'error',
+                    title: 'Đăng nhập thất bại, vui lòng xem lại tài khoản hoặc mật khẩu!!!',
+                    showConfirmButton: false,
+                    timer: 2000
+                })
+            })
+    }
+
+    page.commands.doRegister = (formData) => {
+        $.ajax({
+            type: "POST",
+            contentType: false,
+            cache: false,
+            processData: false,
+            url: page.urls.authRegister,
+            data: formData
+        })
+            .done((data) => {
+                customer = data;
+                page.elements.formRegister[0].reset();
+                page.dialogs.elements.clearImagePreview();
+                AppBase.IziToast.showSuccessAlertLeft("Đăng ký thành công.");
+            }).fail((jqXHR) => {
+            let str = ``;
+            if (jqXHR.status === 401) {
+                AppBase.SweetAlert.showError401();
+            } else {
+                if (jqXHR.status === 403) {
+                    AppBase.SweetAlert.showError403();
+                } else {
+                    if (jqXHR.responseJSON) {
+                        if (jqXHR.responseJSON.message) {
+                            str += `<label id="message-error" class="error" for="message">${jqXHR.responseJSON.message}</label>`;
+                        } else {
+                            $.each(jqXHR.responseJSON, function (key, value) {
+                                str += `<label id="${key}-error" class="error" for="${key}">${value}</label>`;
+                                $("#" + key).addClass("error");
+                            });
+                        }
+                        page.dialogs.alertDanger.frmRegister.removeClass("hide").addClass("show");
+                        page.dialogs.alertDanger.frmRegister.css("display", "block")
+                        page.dialogs.alertDanger.frmRegister.append(str);
+                    } else {
+                        AppBase.SweetAlert.showError500();
+                    }
+                }
+            }
+        })
+    }
+
+    page.elements.btnReg.on("click", () => {
+        page.elements.formRegister.trigger("submit");
+    })
+    page.elements.btnLogin.on("click", () => {
+        page.elements.formLogin.trigger("submit");
+    })
+
+
+    page.elements.formRegister.validate({
+        rules: {
+            fullName: {
+                required: true,
+                minlength: 5,
+                maxlength: 50
+            },
+            usernameReg: {
+                required: true,
+                regex: /^[A-Za-z0-9.]*[A-Za-z0-9]+@[A-Za-z0-9]+(\.[A-Za-z0-9]+).*$/,
+                maxlength: 50
+            },
+            passwordReg: {
+                required: true,
+                maxlength: 30
+            },
+            address: {
+                required: true,
+                minlength: 5,
+                maxlength: 50
+            }
+
+        },
+        messages: {
+            fullName: {
+                required: "Vui lòng nhập họ tên.",
+                minlength: "Họ tên có độ dài tối thiểu là 5 ký tự.",
+                maxlength: "Họ tên có độ dài tối đa là 100 ký tự."
+            },
+            usernameReg: {
+                required: "Tên đăng nhập là bắt buộc",
+                regex: "Tên đăng nhập có dạng email (vd:abcg@gmail.com)",
+                maxlength: "Họ tên có độ dài tối đa là 50 ký tự"
+            },
+            passwordReg: {
+                required: "Mật khẩu là bắt buộc",
+                maxlength: "Mật khẩu có độ dài tối đa 30 ký tự"
+            },
+            address: {
+                required: "Vui lòng nhập địa chỉ.",
+                minlength: "Địa chỉ có độ dài tối thiểu là 5 ký tự.",
+                maxlength: "Địa chỉ có độ dài tối đa là 100 ký tự."
+            }
+
+        },
+        submitHandler: function () {
+            locationRegion.provinceId = page.dialogs.elements.province.val();
+            locationRegion.provinceName = page.dialogs.elements.province.find("option:selected").text();
+            locationRegion.districtId = page.dialogs.elements.district.val();
+            locationRegion.districtName = page.dialogs.elements.district.find("option:selected").text();
+            locationRegion.wardId = page.dialogs.elements.ward.val();
+            locationRegion.wardName = page.dialogs.elements.ward.find("option:selected").text();
+            locationRegion.address = page.dialogs.elements.address.val();
+
+            user.username = page.elements.usernameReg.val().trim();
+            user.password = page.elements.passwordReg.val().trim();
+            customer.fullName = page.elements.fullName.val();
+            let role = 3;
+            let formData = new FormData();
+            formData.append("fullName", customer.fullName);
+            formData.append("username", user.username);
+            formData.append("password", user.password);
+            formData.append("provinceId", locationRegion.provinceId);
+            formData.append("provinceName", locationRegion.provinceName);
+            formData.append("districtId", locationRegion.districtId);
+            formData.append("districtName", locationRegion.districtName);
+            formData.append("wardId", locationRegion.wardId);
+            formData.append("wardName", locationRegion.wardName);
+            formData.append("address", locationRegion.address);
+            formData.append("file", page.dialogs.elements.imageFile[0].files[0]);
+            formData.append("role", role);
+            page.commands.doRegister(formData);
+        }
+    })
+
+    page.elements.formLogin.validate({
+        rules: {
+            usernameLog: {
+                required: true,
+                regex: /^[A-Za-z0-9.]*[A-Za-z0-9]+@[A-Za-z0-9]+(\.[A-Za-z0-9]+).*$/,
+                maxlength: 50
+            },
+            passwordLog: {
+                required: true,
+                maxlength: 30
+            },
+
+        },
+        messages: {
+            usernameLog: {
+                required: "Tên đăng nhập là bắt buộc",
+                regex: "Tên đăng nhập có dạng email (vd:abc@gmail.com)",
+                maxlength: "Họ tên có độ dài tối đa là 50 ký tự"
+            },
+            passwordLog: {
+                required: "Mật khẩu là bắt buộc",
+                maxlength: "Mật khẩu có độ dài tối đa 30 ký tự"
+            },
+        },
+        submitHandler: function () {
+            page.commands.login();
+        }
+    })
+
+    page.commands.getAllProvinces = () => {
+        return $.ajax({
+            headers: {
+                "accept": "application/json",
+                "content-type": "application/json"
+            },
+            type: "GET",
+            url: page.urls.getAllProvinces
+        })
+            .done((data) => {
+                let results = data.results;
+
+                results.map(item => {
+                    let str = `<option value="${item.province_id}">${item.province_name}</option>`;
+                    page.dialogs.elements.province.append(str);
+                })
+
+            })
+            .fail((error) => {
+                console.log(error);
+                console.log("Không thể tải dữ liệu Tỉnh/Thành phố");
+            })
+    }
+
+    page.commands.getAllDistrictsByProvinceId = (provinceId) => {
+        return $.ajax({
+            headers: {
+                "accept": "application/json",
+                "content-type": "application/json"
+            },
+            type: "GET",
+            url: page.urls.getAllDistrictsByProvinceId + provinceId
+        })
+            .done((data) => {
+
+                page.dialogs.elements.district.empty();
+
+                let results = data.results;
+
+                results.map(item => {
+                    let str = `<option value="${item.district_id}">${item.district_name}</option>`;
+                    page.dialogs.elements.district.append(str);
+                })
+            })
+            .fail((error) => {
+                console.log(error);
+                console.log("Không thể tải dữ liệu Thành phố/Quận/Huyện");
+            })
+    }
+
+    page.commands.getAllWardsByDistrictId = (districtId) => {
+        return $.ajax({
+            headers: {
+                "accept": "application/json",
+                "content-type": "application/json"
+            },
+            type: "GET",
+            url: page.urls.getAllWardsByDistrictId + districtId
+        })
+            .done((data) => {
+                page.dialogs.elements.ward.empty();
+
+                let results = data.results;
+
+                results.map(item => {
+                    let str = `<option value="${item.ward_id}">${item.ward_name}</option>`;
+                    page.dialogs.elements.ward.append(str);
+                })
+            })
+            .fail((error) => {
+                console.log(error);
+                console.log("Không thể tải dữ liệu Phường/Xã/Thị trấn");
+            })
+    }
+    page.dialogs.commands.loadImageToCanvas= (imageFile) => {
+        page.dialogs.elements.imagePreview.css("display", "");
+        page.dialogs.elements.wrapper.addClass("active");
+        page.dialogs.elements.wrapperContent.css("opacity", 0);
+
+        let imageObj = new Image();
+
+        imageObj.onload = function () {
+            page.dialogs.elements.context.canvas.width = imageObj.width;
+            page.dialogs.elements.context.canvas.height = imageObj.height;
+            page.dialogs.elements.context.drawImage(imageObj, 0, 0, imageObj.width, imageObj.height);
+        };
+
+        imageObj.src = URL.createObjectURL(imageFile);
+    }
+    page.dialogs.commands.changeImagePreview = () => {
+        let imageFile = page.dialogs.elements.imageFile[0].files[0];
+
+        if (imageFile) {
+            let reader = new FileReader();
+
+            reader.readAsDataURL(imageFile);
+
+            reader.onload = function (e) {
+                if (e.target.readyState === FileReader.DONE) {
+                    page.dialogs.commands.loadImageToCanvas(imageFile);
+                }
+            }
+        } else {
+            page.dialogs.elements.clearImagePreview();
+        }
+    }
+    page.dialogs.elements.clearImagePreview = () => {
+        page.dialogs.elements.imageFile.val("");
+        page.dialogs.elements.imagePreview.css("display", "none");
+        page.dialogs.elements.wrapper.removeClass("active");
+        page.dialogs.elements.wrapperContent.css("opacity", 1);
+    }
+
+    page.commands.showLoading = () => {
+        page.elements.loader.removeClass("hide");
+        page.elements.btnReg.prop('disabled', true);
+    }
+
+    page.commands.closeLoading = () => {
+        page.elements.loader.addClass("hide");
+        page.elements.btnReg.prop('disabled', false);
+    }
+
+
+
+    page.commands.loadData = () => {
+        $.validator.addMethod(
+            "regex",
+            function(value, element, regexp) {
+                var check = false;
+                return this.optional(element) || regexp.test(value);
+            },
+            "Please check your input."
+        );
+        page.commands.getAllProvinces().then(() => {
+            let provinceId = page.dialogs.elements.province.val();
+            page.commands.getAllDistrictsByProvinceId(provinceId).then(() => {
+                let districtId = page.dialogs.elements.district.val();
+                page.commands.getAllWardsByDistrictId(districtId);
+            });
+        })
+    }
+    page.initializeEventControl = () => {
+        page.dialogs.elements.divImagePreview.on("click", function () {
+            page.dialogs.elements.imageFile.trigger("click");
+        });
+
+        page.dialogs.elements.imageFile.on("change", function () {
+            page.dialogs.commands.changeImagePreview();
+        });
+
+        page.dialogs.elements.btnClearImagePreview.on("click", function () {
+            page.dialogs.elements.clearImagePreview();
+        });
+
+        page.dialogs.elements.province.on("change", function () {
+            let provinceId = $(this).val();
+            page.commands.getAllDistrictsByProvinceId(provinceId).then(() => {
+                let districtId = page.dialogs.elements.district.val();
+                page.commands.getAllWardsByDistrictId(districtId);
+            });
+        });
+
+        page.dialogs.elements.district.on("change", function () {
+            let districtId = $(this).val();
+            page.commands.getAllWardsByDistrictId(districtId);
+        });
+
+        page.elements.btnReg.on("click", () => {
+            page.elements.formRegister.trigger("submit");
+        })
+    }
+
+    $(() => {
+        page.commands.loadData();
+        page.initializeEventControl();
+    })
+</script>
+</body>
+</html>

@@ -1,0 +1,660 @@
+<!doctype html>
+
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>FinDash - Responsive Bootstrap 4 Admin Dashboard Template</title>
+  <th:block th:replace="cp/layout/head :: head">
+
+  </th:block>
+
+</head>
+<body class="sidebar-main-active right-column-fixed">
+loader Start
+
+<div id="loader">
+  <div id="loading-center">
+  </div>
+</div>
+loader END
+Wrapper Start
+<div class="wrapper">
+  <!-- Sidebar  -->
+  <th:block th:replace="cp/layout/slidebar :: slidebar"></th:block>
+  <!-- TOP Nav Bar -->
+  <th:block th:replace="cp/layout/nvaBar :: nvaBar">
+
+  </th:block>
+  <!-- TOP Nav Bar END -->
+</div>
+<!-- Page Content  -->
+<div class="loader hide">
+  <div id="loading"></div>
+</div>
+<div id="content-page" class="content-page">
+  <div class="col-lg-12">
+    <div class="iq-card iq-card-block iq-card-stretch iq-card-height">
+      <div class="iq-card-header d-flex justify-content-between">
+        <div class="iq-header-title">
+          <h4 class="card-title">Open Invoices</h4>
+        </div>
+
+      </div>
+      <div class="iq-card-body">
+        <div class="table-responsive">
+          <table class="table mb-0" id="listCustomer">
+            <thead class="thead-light">
+            <tr class="bg-info text-white">
+              <th class="text-center">ID</th>
+              <th class="text-center">Ảnh</th>
+              <th class="text-center">Họ Tên</th>
+              <th class="text-center">Email</th>
+              <th class="text-center">Thành Phố</th>
+              <th class="text-center">Địa Chỉ</th>
+              <th class="text-center">Thao Tác</th>
+            </tr>
+            </thead>
+            <tbody>
+
+
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Wrapper END -->
+<!-- Footer -->
+<footer class="footer">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-lg-6">
+        <ul class="list-inline mb-0">
+          <li class="list-inline-item"><a href="">Privacy Policy</a></li>
+          <li class="list-inline-item"><a href="">Terms of Use</a></li>
+        </ul>
+      </div>
+      <div class="col-lg-6 text-right">
+        Copyright 2020 <a href="#">FinDash</a> All Rights Reserved.
+      </div>
+    </div>
+  </div>
+</footer>
+
+<th:block th:replace="/cp/customer/modalUpdateCustomer :: modalUpdateCustomer"/>
+<!-- Footer END -->
+<th:block th:replace="cp/layout/script :: script-cp" />
+<script src="/assets/js/AppBase.js"></script>
+<script src="/assets/jquery/jquery.validate-1.19.5.min.js"></script>
+<script src="/assets/sweetalert2/sweetalert2@11.js"></script>
+<script src="/assets/js/bootstrap.bundle.min.js"></script>
+
+<script>
+  const page = {
+    urls: {
+      getAllCustomers: AppBase.API_CUSTOMER,
+      getCustomerById: AppBase.API_CUSTOMER,
+      updateCustomer: AppBase.API_CUSTOMER,
+      deleteCustomer: AppBase.API_CUSTOMER + "/delete",
+      getAllProvinces: AppBase.PROVINCE_API,
+      getAllDistrictsByProvinceId: AppBase.DISTRICT_API,
+      getAllWardsByDistrictId: AppBase.WARD_API,
+    },
+    elements: {},
+    loadData: {},
+    commands: {},
+    dialogs: {
+      elements: {},
+      loadData: {},
+      commands: {},
+      alertDanger: {}
+    },
+    initializeEventControl: {}
+  }
+
+  let product = new Product();
+  let productAvatar = new ProductAvatar();
+
+  page.elements.tbTbody = $('#listCustomer tbody')
+
+  page.dialogs.elements.modalUpdate = $("#modalUpdateCustomer");
+  page.dialogs.elements.frmUpdateCustomer = $("#frmUpdateCustomer");
+  page.dialogs.elements.customerId = $("#customerId");
+  page.dialogs.elements.locationRegion = $("#locationRegion");
+  page.dialogs.elements.fullName = $("#fullName");
+  page.dialogs.elements.email = $("#email");
+  page.dialogs.elements.province = $("#province");
+  page.dialogs.elements.district = $("#district");
+  page.dialogs.elements.ward = $("#ward");
+  page.dialogs.elements.address = $("#address");
+  page.dialogs.elements.btnUpdate = $("#btnUpdate");
+  page.dialogs.alertDanger.frmUpdateProduct = $("#modalUpdateCustomer .frm-alert-danger");
+
+  page.dialogs.elements.imageFileUp = $("#imageFileUp");
+
+  page.dialogs.elements.imagePreview = $("#modalUpdateCustomer section .image-preview canvas");
+  page.dialogs.elements.imagePreview.css("display", "none");
+  page.dialogs.elements.divImagePreview = $("#modalUpdateCustomer div.image-preview, #modalUpdateCustomer div.file-name");
+  page.dialogs.elements.btnClearImagePreview = $(".clear-image-preview i");
+  page.dialogs.elements.wrapper = $("#modalUpdateCustomer section .wrapper-images");
+  page.dialogs.elements.wrapperContent = $("#modalUpdateCustomer section .wrapper-images .content");
+  page.dialogs.elements.canvasUp = $("#canvasUp");
+  page.dialogs.elements.context = page.dialogs.elements.canvasUp[0].getContext('2d');
+
+  page.dialogs.alertDanger.frmUpdateCustomer = $("#frmUpdateCustomer .frm-alert-danger");
+
+  let customer = new Customer();
+  let locationRegion = new LocationRegion();
+  let user = new User();
+  let customerAvatar = new CustomerAvatar();
+  let role = new Role();
+
+
+  page.loadData.getAllCustomer = () =>{
+
+    $.ajax({
+      headers: {
+        "accept": "application/json",
+        "content-type": "application/json"
+      },
+      type: "GET",
+      url: page.urls.getAllCustomers
+    })
+            .done((data) => {
+              $.each(data, (i, item) => {
+                customer = item;
+                user = customer.user;
+                locationRegion = customer.locationRegion;
+                customerAvatar = customer.customerAvatar;
+                page.elements.tbTbody.prepend(page.commands.renderCustomer(customer, user, locationRegion, customerAvatar));
+              });
+
+
+
+              page.commands.removeHandleShowModal();
+              page.commands.handleShowGroupModal();
+            })
+            .fail((error) => {
+              console.log(error);
+            })
+  }
+
+  page.commands.renderCustomer = (customer, user, locationRegion, customerAvatar) => {
+
+    let image_thumbnail = `${AppBase.BASE_URL_CLOUD_IMAGE}/${AppBase.SCALE_IMAGE_W100_H80_Q100}/${customerAvatar.fileFolder}/${customerAvatar.fileName}`;
+    return `
+		<tr id="tr_${customer.id}">
+                                <td class="text-center">${customer.id}</td>
+                                <td class="text-center"><img class="img-fluid" src="${image_thumbnail}" alt=""${customerAvatar.fileName}""></td>
+                                <td class="text-center">${customer.fullName}</td>
+                                <td class="text-center">${user.username}</td>
+                                <td class="text-center">
+                                    ${locationRegion.provinceName}
+                                </td>
+                                <td class="text-center">${locationRegion.address}</td>
+                                <td class="text-center">
+                                    <div class="iq-card-header-toolbar d-flex align-items-center">
+                                    <div class="dropdown">
+                                    <span class="dropdown-toggle text-primary" id="dropdownMenuButton5" data-toggle="dropdown">
+                                    <i class="ri-more-fill"></i>
+                                     </span>
+                                        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton5">
+                                            <a class="dropdown-item delete" data-id=${customer.id}
+                                                                            data-avatar-id = "${customerAvatar.id}"
+                                                                            data-avatar-file-folder = "${customerAvatar.fileFolder}"
+                                                                            data-avatar-file-name = "${customerAvatar.fileName}"
+                                                                            href="#"  ><i class="ri-delete-bin-6-fill mr-2"></i>Delete</a>
+                                            <button class="dropdown-item update" data-id=${customer.id}
+                                                                            data-avatar-id = "${customerAvatar.id}"
+                                                                            data-avatar-file-folder = "${customerAvatar.fileFolder}"
+                                                                            data-avatar-file-name = "${customerAvatar.fileName}" href="#"><i class="ri-pencil-fill mr-2"></i>Update</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                </td>
+                            </tr>
+	 		`;
+
+  }
+
+  page.commands.handleShowUpdateModal = () => {
+    $(".update").on("click", function () {
+      let id = $(this).data("id");
+      let avatarFileFolder = $(this).data("avatar-file-folder");
+      let avatarFileName = $(this).data("avatar-file-name");
+      page.commands.getCustomerById(id).done((data) => {
+
+        let avatarUrl = AppBase.BASE_URL_CLOUD_IMAGE + "/" + AppBase.SCALE_IMAGE_W600_H850_Q100 + "/" + avatarFileFolder + "/" + avatarFileName;
+        page.dialogs.commands.loadImageToCanvasUp(null, "", avatarUrl);
+        customer = data;
+        locationRegion = customer.locationRegion;
+        user = customer.user;
+        customerAvatar = customer.productAvatar;
+        page.dialogs.elements.fullName.val(customer.fullName);
+        page.dialogs.elements.customerId.val(customer.id);
+        page.dialogs.elements.locationRegion.val(locationRegion.id);
+        page.commands.getAllProvinces().then(() => {
+          page.dialogs.elements.province.val(locationRegion.provinceId);
+          page.commands.getAllDistrictsByProvinceId(locationRegion.provinceId).then(() => {
+            page.dialogs.elements.district.val(locationRegion.districtId);
+            page.commands.getAllWardsByDistrictId(locationRegion.districtId).then(() => {
+              page.dialogs.elements.ward.val(locationRegion.wardId);
+            })
+          });
+        })
+
+        page.dialogs.elements.address.val(locationRegion.address);
+        page.dialogs.elements.modalUpdate.modal('show');
+      })
+    })
+  }
+
+  page.commands.updateCustomer = (formData) => {
+    $.ajax({
+      type: "PATCH",
+      contentType: false,
+      cache: false,
+      processData: false,
+      url: page.urls.updateCustomer + "/" + customer.id,
+      data: formData
+    })
+            .done((data) => {
+              customer = data;
+              user = customer.user;
+              locationRegion = customer.locationRegion;
+              customerAvatar = customer.customerAvatar;
+              let str = page.commands.renderCustomer(customer, user, locationRegion, customerAvatar);
+              let updateRow = $("#tr_" + product.id);
+              updateRow.replaceWith(str);
+              page.commands.removeHandleShowModal();
+              page.commands.handleShowGroupModal();
+              page.dialogs.elements.modalUpdate.modal("hide");
+              AppBase.IziToast.showSuccessAlertLeft("Chỉnh sửa khách hàng <b>'" + customer.fullName + "'</b> thành công.")
+            }).fail((jqXHR) => {
+      let str = ``;
+      console.log(jqXHR.status);
+      if (jqXHR.status === 401) {
+        AppBase.SweetAlert.showError401();
+      } else {
+        if (jqXHR.status === 403) {
+          AppBase.SweetAlert.showError403();
+        } else {
+          if (jqXHR.responseJSON) {
+            if (jqXHR.responseJSON.message) {
+              str += `<label id="message-error" class="error" for="message">${jqXHR.responseJSON.message}</label>`;
+            } else {
+              $.each(jqXHR.responseJSON, function (key, value) {
+                str += `<label id="${key}-error" class="error" for="${key}">${value}</label>`;
+                // $("#" + key).addClass("error");
+              });
+            }
+            page.dialogs.alertDanger.frmUpdateCustomer.removeClass("hide").addClass("show");
+            page.dialogs.alertDanger.frmUpdateCustomer.css("display", "")
+            page.dialogs.alertDanger.frmUpdateCustomer.append(str);
+          } else {
+            AppBase.SweetAlert.showError500();
+          }
+        }
+      }
+    })
+  }
+
+
+
+
+  page.dialogs.commands.loadImageToCanvasUp = (imageFile, fileType, imageUrl) => {
+    page.dialogs.elements.imagePreview.css("display", "");
+    page.dialogs.elements.wrapper.addClass("active");
+    page.dialogs.elements.wrapperContent.css("opacity", 0);
+
+    let imageObj = new Image();
+
+    imageObj.onload = function () {
+      page.dialogs.elements.context.canvas.width = imageObj.width;
+      page.dialogs.elements.context.canvas.height = imageObj.height;
+      page.dialogs.elements.context.drawImage(imageObj, 0, 0, imageObj.width, imageObj.height);
+    };
+    if (fileType === "BINARY") {
+      imageObj.src = URL.createObjectURL(imageFile);
+    } else {
+      imageObj.src = imageUrl;
+    }
+  }
+
+  page.commands.getCustomerById = (customerId) => {
+    return $.ajax({
+      type: "GET",
+      url: page.urls.getCustomerById + "/" + customerId
+    }).done((data) => {
+      product = data;
+    })
+            .fail((jqXHR) => {
+              let errors = jqXHR.responseJSON;
+              if (errors) {
+                let str = "";
+                $.each(errors, (k, v) => {
+                  str += `
+                            ${v}
+                        `;
+                })
+                AppBase.SweetAlert.showErrorAlert(str);
+              }
+            })
+  }
+
+  page.dialogs.elements.frmUpdateCustomer.validate({
+    rules: {
+      fullName: {
+        required: true,
+        minlength: 5,
+        maxlength: 50
+      },
+      address: {
+        required: true,
+        minlength: 5,
+        maxlength: 50
+      }
+    },
+    messages: {
+      fullName: {
+        required: "Vui lòng nhập tên đầy đủ",
+        minlength: "Độ dài tối thiểu là 5 ký tự",
+        maxlength: "Độ dài tối đa là 100 ký tự"
+      },
+      address: {
+        required: "Vui lòng nhập địa chỉ.",
+        minlength: "Địa chỉ có độ dài tối thiểu là 5 ký tự.",
+        maxlength: "Địa chỉ có độ dài tối đa là 100 ký tự."
+      }
+    },
+    errorLabelContainer: "#frmUpdateCustomer .frm-alert-danger",
+    errorPlacement: function (error) {
+      error.appendTo("#frmUpdateCustomer .frm-alert-danger");
+    },
+    showErrors: function () {
+      if (this.numberOfInvalids() > 0) {
+        page.dialogs.alertDanger.frmUpdateCustomer.removeClass("hide").addClass("show");
+      } else {
+        page.dialogs.alertDanger.frmUpdateCustomer.removeClass("show").addClass("hide").empty();
+        $("#frmUpdateCustomer input.error").removeClass("error");
+      }
+      this.defaultShowErrors();
+    }, submitHandler: function () {
+      customer.id = page.dialogs.elements.customerId.val();
+      customer.fullName = page.dialogs.elements.fullName.val();
+      locationRegion.id = page.dialogs.elements.locationRegion.val();
+      locationRegion.provinceId = page.dialogs.elements.province.val();
+      locationRegion.provinceName = page.dialogs.elements.province.find("option:selected").text();
+      locationRegion.districtId = page.dialogs.elements.district.val();
+      locationRegion.districtName = page.dialogs.elements.district.find("option:selected").text();
+      locationRegion.wardId = page.dialogs.elements.ward.val();
+      locationRegion.wardName = page.dialogs.elements.ward.find("option:selected").text();
+      locationRegion.address = page.dialogs.elements.address.val();
+
+      let formData = new FormData();
+      formData.append("id", customer.id);
+      formData.append("fullName", customer.fullName);
+      formData.append("locationRegionId", locationRegion.id);
+      formData.append("provinceId", locationRegion.provinceId);
+      formData.append("provinceName", locationRegion.provinceName);
+      formData.append("districtId", locationRegion.districtId);
+      formData.append("districtName", locationRegion.districtName);
+      formData.append("wardId", locationRegion.wardId);
+      formData.append("wardName", locationRegion.wardName);
+      formData.append("address", locationRegion.address);
+      formData.append("file", page.dialogs.elements.imageFileUp[0].files[0]);
+
+      page.commands.updateCustomer(formData);
+    }
+  })
+
+
+
+
+  page.commands.getAllProvinces = () => {
+    return $.ajax({
+      headers: {
+        "accept": "application/json",
+        "content-type": "application/json"
+      },
+      type: "GET",
+      url: page.urls.getAllProvinces
+    })
+            .done((data) => {
+              let results = data.results;
+
+              results.map(item => {
+                let str = `<option value="${item.province_id}">${item.province_name}</option>`;
+                page.dialogs.elements.province.append(str);
+              })
+
+            })
+            .fail((error) => {
+              console.log(error);
+              console.log("Không thể tải dữ liệu Tỉnh/Thành phố");
+            })
+  }
+
+  page.commands.getAllDistrictsByProvinceId = (provinceId) => {
+    return $.ajax({
+      headers: {
+        "accept": "application/json",
+        "content-type": "application/json"
+      },
+      type: "GET",
+      url: page.urls.getAllDistrictsByProvinceId + provinceId
+    })
+            .done((data) => {
+
+              page.dialogs.elements.district.empty();
+
+              let results = data.results;
+
+              results.map(item => {
+                let str = `<option value="${item.district_id}">${item.district_name}</option>`;
+                page.dialogs.elements.district.append(str);
+              })
+            })
+            .fail((error) => {
+              console.log(error);
+              console.log("Không thể tải dữ liệu Thành phố/Quận/Huyện");
+            })
+  }
+
+  page.commands.getAllWardsByDistrictId = (districtId) => {
+    return $.ajax({
+      headers: {
+        "accept": "application/json",
+        "content-type": "application/json"
+      },
+      type: "GET",
+      url: page.urls.getAllWardsByDistrictId + districtId
+    })
+            .done((data) => {
+              page.dialogs.elements.ward.empty();
+
+              let results = data.results;
+
+              results.map(item => {
+                let str = `<option value="${item.ward_id}">${item.ward_name}</option>`;
+                page.dialogs.elements.ward.append(str);
+              })
+            })
+            .fail((error) => {
+              console.log(error);
+              console.log("Không thể tải dữ liệu Phường/Xã/Thị trấn");
+            })
+  }
+
+
+  page.commands.handleShowConfirmDelete = () => {
+    $(".delete").on("click", function () {
+      let id = $(this).data("id");
+      page.commands.getCustomerById(id).then(() => {
+        Swal.fire({
+          title: 'Bạn có chắc chắn muốn xóa?',
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#3085d6',
+          cancelButtonColor: '#d33',
+          confirmButtonText: 'Đồng ý!'
+        }).then((result) => {
+          if (result.isConfirmed) {
+            page.commands.doDeleteCustomer(id);
+          }
+        })
+      })
+    });
+  }
+
+  page.commands.doDeleteCustomer = (productId) => {
+    $.ajax({
+      headers: {
+        "accept": "application/json",
+        "content-type": "application/json"
+      },
+      type: "DELETE",
+      url: page.urls.deleteCustomer + "/" + productId,
+      data: JSON.stringify(productId)
+    })
+            .done(() => {
+              $("#tr_" + productId).remove();
+              AppBase.IziToast.showSuccessAlertLeft("Xóa Khách Hàng <b>'" + customer.fullName + "'</b> thành công");
+            })
+            .fail((jqXHR) => {
+              if (jqXHR.status === 401) {
+                AppBase.SweetAlert.showError401();
+              } else {
+                if (jqXHR.status === 403) {
+                  AppBase.SweetAlert.showError403();
+                } else {
+                  if (jqXHR.responseJSON) {
+                    console.log(jqXHR.responseJSON.message)
+                    AppBase.SweetAlert.showErrorAlert(jqXHR.responseJSON.message);
+                  } else {
+                    AppBase.SweetAlert.showError500();
+                  }
+                }
+              }
+            })
+  }
+
+
+  page.dialogs.elements.clearImagePreview = () => {
+    page.dialogs.elements.imageFileUp.val("");
+    page.dialogs.elements.imagePreview.css("display", "none");
+    page.dialogs.elements.wrapper.removeClass("active");
+    page.dialogs.elements.wrapperContent.css("opacity", 1);
+  }
+
+  page.dialogs.commands.changeImagePreview = () => {
+    let imageFile = page.dialogs.elements.imageFileUp[0].files[0];
+    if (imageFile) {
+      let reader = new FileReader();
+      reader.readAsDataURL(imageFile);
+      reader.onload = function (e) {
+        if (e.target.readyState === FileReader.DONE) {
+          page.dialogs.commands.loadImageToCanvasUp(imageFile, "BINARY", null);
+        }
+      }
+    } else {
+      page.dialogs.elements.clearImagePreview();
+    }
+  }
+
+  page.dialogs.elements.imageFileUp.on("change", function () {
+    page.dialogs.commands.changeImagePreview();
+  });
+
+  page.commands.handleShowGroupModal = () => {
+    page.commands.handleShowConfirmDelete();
+    page.commands.handleShowUpdateModal();
+  }
+
+  page.commands.removeHandleShowModal = () => {
+    $(".edit").off("click");
+    $(".delete").off("click");
+  }
+
+  page.dialogs.commands.handleCloseUpdateModal = () => {
+    page.dialogs.elements.frmUpdateCustomer.find("input.error").removeClass("error");
+    page.dialogs.elements.frmUpdateCustomer[0].reset();
+    page.dialogs.elements.frmUpdateCustomer.validate().resetForm();
+    page.dialogs.elements.clearImagePreview();
+  }
+
+  page.commands.showLoading = () => {
+    page.elements.loader.removeClass("hide");
+    page.dialogs.elements.btnUpdate.prop('disabled', true);
+  }
+
+  page.commands.closeLoading = () => {
+    page.elements.loader.addClass("hide");
+    page.dialogs.elements.btnUpdate.prop('disabled', false);
+  }
+
+  page.commands.loadData = () => {
+    page.loadData.getAllCustomer();
+
+    page.commands.getAllProvinces().then(() => {
+      let provinceId = page.dialogs.elements.province.val();
+      page.commands.getAllDistrictsByProvinceId(provinceId).then(() => {
+        let districtId = page.dialogs.elements.district.val();
+        page.commands.getAllWardsByDistrictId(districtId);
+      });
+    })
+  }
+
+
+  page.initializeEventControl = () => {
+    page.commands.handleShowGroupModal();
+
+    page.dialogs.elements.btnUpdate.on("click", () => {
+      page.dialogs.elements.frmUpdateCustomer.submit();
+    });
+
+    page.dialogs.elements.divImagePreview.on("click", function () {
+      page.dialogs.elements.imageFileUp.trigger("click");
+    });
+
+    page.dialogs.elements.imageFileUp.on("change", function () {
+      page.dialogs.commands.changeImagePreview();
+    });
+
+    // page.dialogs.elements.divImagePreview.on("click", function () {
+    //     page.dialogs.elements.imageFile.trigger("click");
+    // });
+
+    page.dialogs.elements.btnClearImagePreview.on("click", function () {
+      page.dialogs.elements.clearImagePreview();
+    });
+
+    page.dialogs.elements.modalUpdate.on("hide.bs.modal", function () {
+      page.dialogs.commands.handleCloseUpdateModal();
+    });
+
+    page.dialogs.elements.province.on("change", function () {
+      let provinceId = $(this).val();
+      page.commands.getAllDistrictsByProvinceId(provinceId).then(() => {
+        let districtId = page.dialogs.elements.district.val();
+        page.commands.getAllWardsByDistrictId(districtId);
+      });
+    });
+
+    page.dialogs.elements.district.on("change", function () {
+      let districtId = $(this).val();
+      page.commands.getAllWardsByDistrictId(districtId);
+    });
+  }
+
+  $(() => {
+    page.initializeEventControl();
+    page.commands.loadData();
+  })
+</script>
+</body>
+</html>
