@@ -60,12 +60,13 @@ public class ProductAPI {
     }
 
     @PostMapping
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
     public ResponseEntity<?> create(@Validated ProductCreateDTO productCreateDTO, BindingResult bindingResult) {
         new ProductCreateDTO().validate(productCreateDTO, bindingResult);
         MultipartFile imageFile = productCreateDTO.getFile();
 
         if (imageFile == null) {
-            throw new DataInputException("Vui lòng chọn hình ảnh.");
+            throw new DataInputException("Vui lòng chọn hình ảnh!!");
         }
 
         if (bindingResult.hasFieldErrors()) {
@@ -73,7 +74,7 @@ public class ProductAPI {
         }
 
         if (productService.existsByNameProduct(productCreateDTO.getNameProduct())) {
-            throw new EmailExistsException("Sản phẩm đã tồn tại trong hệ thống.");
+            throw new EmailExistsException("Sản phẩm đã tồn tại trong hệ thống!!");
         }
 
         productCreateDTO.setId(null);
@@ -87,13 +88,13 @@ public class ProductAPI {
     public ResponseEntity<?> update(@PathVariable Long productId, MultipartFile file, @Validated ProductUpdateDTO productUpdateDTO, BindingResult bindingResult) {
         Optional<Product> productOptional = productService.findById(productId);
         if (!productOptional.isPresent()) {
-            throw new DataInputException("ID sản phẩm không tồn tại.");
+            throw new DataInputException("ID sản phẩm không tồn tại!!");
         }
 
         Product product = productOptional.get();
 
         if (productService.existsByNameProductAndIdNot(productUpdateDTO.getNameProduct(), productId)) {
-            throw new DataInputException("Sản phẩm đã tồn tại trong hệ thống.");
+            throw new DataInputException("Sản phẩm đã tồn tại trong hệ thống!!");
         }
 
         if (bindingResult.hasFieldErrors()) {
@@ -123,14 +124,14 @@ public class ProductAPI {
         Optional<Product> productOptional = productService.findById(productId);
 
         if (!productOptional.isPresent()) {
-            throw new DataInputException("ID sản phẩm không hợp lệ.");
+            throw new DataInputException("ID sản phẩm không hợp lệ!!");
         }
 
         try {
             productService.softDelete(productId);
             return new ResponseEntity<>(HttpStatus.ACCEPTED);
         } catch (Exception e) {
-            throw new DataInputException("Vui lòng liên hệ Administrator.");
+            throw new DataInputException("Vui lòng liên hệ Administrator!!");
         }
     }
 }

@@ -43,13 +43,13 @@ public class CustomerAPI {
         try {
             sid = Long.parseLong(customerId);
         } catch (NumberFormatException e) {
-            throw new DataInputException("ID khách hàng không hợp lệ.");
+            throw new DataInputException("ID khách hàng không hợp lệ!!");
         }
 
         Optional<Customer> customerOptional = customerService.findById(sid);
 
         if (!customerOptional.isPresent()) {
-            throw new DataInputException("ID khách hàng không hợp lệ.");
+            throw new DataInputException("ID khách hàng không hợp lệ!!");
         }
 
         return new ResponseEntity<>(customerOptional.get().toCustomerDTO(), HttpStatus.OK);
@@ -61,7 +61,7 @@ public class CustomerAPI {
 
         Optional<Customer> customerOptional = customerService.findById(customerId);
         if (!customerOptional.isPresent()) {
-            throw new DataInputException("ID khách hàng không tồn tại.");
+            throw new DataInputException("ID khách hàng không tồn tại!!");
         }
 
 
@@ -91,14 +91,14 @@ public class CustomerAPI {
         Optional<Customer> customerOptional = customerService.findById(customerId);
 
         if (!customerOptional.isPresent()) {
-            throw new DataInputException("ID khách hàng không hợp lệ.");
+            throw new DataInputException("ID khách hàng không hợp lệ!!");
         }
 
         try {
             customerService.softDelete(customerId);
             return new ResponseEntity<>(HttpStatus.ACCEPTED);
         } catch (Exception e) {
-            throw new DataInputException("Vui lòng liên hệ Administrator.");
+            throw new DataInputException("Thao tác không thành công, vui lòng liên hệ Administrator!!");
         }
     }
 }
